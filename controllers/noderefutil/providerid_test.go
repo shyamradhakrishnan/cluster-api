@@ -25,46 +25,6 @@ import (
 const aws = "aws"
 const azure = "azure"
 
-func TestNewProviderID(t *testing.T) {
-	tests := []struct {
-		name       string
-		input      string
-		expectedID string
-	}{
-		{
-			name:       "2 slashes after colon, one segment",
-			input:      "aws://instance-id",
-			expectedID: "instance-id",
-		},
-		{
-			name:       "more than 2 slashes after colon, one segment",
-			input:      "aws:////instance-id",
-			expectedID: "instance-id",
-		},
-		{
-			name:       "multiple filled-in segments (aws format)",
-			input:      "aws:///zone/instance-id",
-			expectedID: "instance-id",
-		},
-		{
-			name:       "multiple filled-in segments",
-			input:      "aws://bar/baz/instance-id",
-			expectedID: "instance-id",
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			id, err := NewProviderID(tc.input)
-			g.Expect(err).NotTo(HaveOccurred())
-			g.Expect(id.CloudProvider()).To(Equal(aws))
-			g.Expect(id.ID()).To(Equal(tc.expectedID))
-		})
-	}
-}
-
 func TestInvalidProviderID(t *testing.T) {
 	testCases := []struct {
 		name  string
@@ -120,15 +80,11 @@ func TestProviderIDEquals(t *testing.T) {
 	parsedAWS1, err := NewProviderID(inputAWS1)
 	g.Expect(err).NotTo(HaveOccurred())
 	g.Expect(parsedAWS1.String()).To(Equal(inputAWS1))
-	g.Expect(parsedAWS1.ID()).To(Equal("instance-id1"))
-	g.Expect(parsedAWS1.CloudProvider()).To(Equal(aws))
 
 	inputAWS2 := "aws:///us-west-1/instance-id1"
 	parsedAWS2, err := NewProviderID(inputAWS2)
 	g.Expect(err).NotTo(HaveOccurred())
 	g.Expect(parsedAWS2.String()).To(Equal(inputAWS2))
-	g.Expect(parsedAWS2.ID()).To(Equal("instance-id1"))
-	g.Expect(parsedAWS2.CloudProvider()).To(Equal(aws))
 
 	// Test for inequality
 	g.Expect(parsedAWS1.Equals(parsedAWS2)).To(BeFalse())
@@ -137,8 +93,6 @@ func TestProviderIDEquals(t *testing.T) {
 	parsedAzure1, err := NewProviderID(inputAzure1)
 	g.Expect(err).NotTo(HaveOccurred())
 	g.Expect(parsedAzure1.String()).To(Equal(inputAzure1))
-	g.Expect(parsedAzure1.ID()).To(Equal("default-template-control-plane-fhrvh"))
-	g.Expect(parsedAzure1.CloudProvider()).To(Equal(azure))
 
 	inputAzure2 := inputAzure1
 	parsedAzure2, err := NewProviderID(inputAzure2)
@@ -154,14 +108,10 @@ func TestProviderIDEquals(t *testing.T) {
 	parsedAzureVMFromOneVMSS, err := NewProviderID(inputAzureVMFromOneVMSS)
 	g.Expect(err).NotTo(HaveOccurred())
 	g.Expect(parsedAzureVMFromOneVMSS.String()).To(Equal(inputAzureVMFromOneVMSS))
-	g.Expect(parsedAzureVMFromOneVMSS.ID()).To(Equal("0"))
-	g.Expect(parsedAzureVMFromOneVMSS.CloudProvider()).To(Equal(azure))
 
 	parsedAzureVMFromAnotherVMSS, err := NewProviderID(inputAzureVMFromAnotherVMSS)
 	g.Expect(err).NotTo(HaveOccurred())
 	g.Expect(parsedAzureVMFromAnotherVMSS.String()).To(Equal(inputAzureVMFromAnotherVMSS))
-	g.Expect(parsedAzureVMFromAnotherVMSS.ID()).To(Equal("0"))
-	g.Expect(parsedAzureVMFromAnotherVMSS.CloudProvider()).To(Equal(azure))
 
 	// Test for inequality
 	g.Expect(parsedAzureVMFromOneVMSS.Equals(parsedAzureVMFromAnotherVMSS)).To(BeFalse())
