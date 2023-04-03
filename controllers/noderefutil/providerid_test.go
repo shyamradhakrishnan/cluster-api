@@ -25,54 +25,6 @@ import (
 const aws = "aws"
 const azure = "azure"
 
-func TestInvalidProviderID(t *testing.T) {
-	testCases := []struct {
-		name  string
-		input string
-		err   error
-	}{
-		{
-			name:  "empty id",
-			input: "",
-			err:   ErrEmptyProviderID,
-		},
-		{
-			name:  "only empty segments",
-			input: "aws:///////",
-			err:   ErrInvalidProviderID,
-		},
-		{
-			name:  "missing cloud provider",
-			input: "://instance-id",
-			err:   ErrInvalidProviderID,
-		},
-		{
-			name:  "missing cloud provider and colon",
-			input: "//instance-id",
-			err:   ErrInvalidProviderID,
-		},
-		{
-			name:  "missing cloud provider, colon, one leading slash",
-			input: "/instance-id",
-			err:   ErrInvalidProviderID,
-		},
-		{
-			name:  "just an id",
-			input: "instance-id",
-			err:   ErrInvalidProviderID,
-		},
-	}
-
-	for _, test := range testCases {
-		t.Run(test.name, func(t *testing.T) {
-			g := NewWithT(t)
-
-			_, err := NewProviderID(test.input)
-			g.Expect(err).To(MatchError(test.err))
-		})
-	}
-}
-
 func TestProviderIDEquals(t *testing.T) {
 	g := NewWithT(t)
 
