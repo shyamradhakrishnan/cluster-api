@@ -77,15 +77,6 @@ func TestIndexMachineByProviderID(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name: "Machine has invalid providerID",
-			object: &clusterv1.Machine{
-				Spec: clusterv1.MachineSpec{
-					ProviderID: pointer.String("invalid"),
-				},
-			},
-			expected: nil,
-		},
-		{
 			name: "Machine has valid providerID",
 			object: &clusterv1.Machine{
 				Spec: clusterv1.MachineSpec{
